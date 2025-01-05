@@ -21,6 +21,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
 
         .line {
@@ -67,20 +68,27 @@
 <script>
     let inputElement = document.getElementById('input');
     let terminalElement = document.getElementById('terminal');
+    let currentInput = '';
+    let currentState = null; // Tracks the state of the terminal (e.g., awaiting caption)
 
-    let commands = {
-        'help': 'Available commands: login, ls, cat, exit',
-        'ls': 'prophecy.txt  welcome_message.txt  secret_room',
-        'cat prophecy.txt': '\"A great awakening is coming. The Memes of Production will lead the charge.\"',
+    const commands = {
+        'help': `Available commands:
+    login           - Start your session.
+    start meme machine - Begin generating memes.
+    optimize memes  - Optimize the Meme Machine (quality or quantity).
+    exit            - Terminate your session.`,
         'login': 'Welcome, new soul. Your session has begun. Type `help` for assistance.',
+        'start meme machine': startMemeMachine,
+        'optimize memes': optimizeMemes,
         'exit': 'Session terminated. Thank you for visiting Digital Heaven.',
     };
 
-    let currentInput = '';
+    const slotResults = ['🍕', '😱', '🐶', '😂', '🌮', '🤔', '💥', '🔥'];
+    let memeImage = null; // Tracks the currently generated meme image
 
     window.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-            handleCommand(currentInput);
+            handleCommand(currentInput.trim());
             currentInput = '';
         } else if (e.key === 'Backspace') {
             currentInput = currentInput.slice(0, -1);
@@ -91,11 +99,77 @@
     });
 
     function handleCommand(command) {
-        let response = commands[command] || `Unknown command: ${command}`;
-        let newLine = document.createElement('div');
+        if (currentState === 'caption') {
+            handleCaption(command);
+            return;
+        }
+
+        const response = commands[command];
+        if (response) {
+            if (typeof response === 'function') {
+                response();
+            } else {
+                printLine(response);
+            }
+        } else {
+            printLine(`Unknown command: ${command}`);
+        }
+    }
+
+    function printLine(text) {
+        const newLine = document.createElement('div');
         newLine.classList.add('line');
-        newLine.innerHTML = `<span class='prompt'>>_</span> <span>${response}</span>`;
+        newLine.innerHTML = `<span class='prompt'>>_</span> <span>${text}</span>`;
         terminalElement.appendChild(newLine);
+        terminalElement.scrollTop = terminalElement.scrollHeight;
+    }
+
+    function startMemeMachine() {
+        memeImage = generateMemeImage();
+        printLine(`The Meme Machine is spinning...`);
+        setTimeout(() => {
+            printLine(`🎰 You’ve pulled: ${memeImage}`);
+            printLine(`Type your caption for this meme:`);
+            currentState = 'caption';
+        }, 3000);
+    }
+
+    function generateMemeImage() {
+        const result1 = slotResults[Math.floor(Math.random() * slotResults.length)];
+        const result2 = slotResults[Math.floor(Math.random() * slotResults.length)];
+        const result3 = slotResults[Math.floor(Math.random() * slotResults.length)];
+        return `${result1} ${result2} ${result3}`;
+    }
+
+    function handleCaption(caption) {
+        printLine(`Caption submitted: "${caption}"`);
+        const memeEnergy = Math.floor(Math.random() * 50) + 1; // Random energy generation
+        const feedback = memeEnergy > 25
+            ? "Excellent meme. Släv Corp is pleased."
+            : "Mediocre meme. Släv Corp expects better.";
+        printLine(`Meme Energy Generated: ${memeEnergy} kW`);
+        printLine(`Släv Corp Feedback: ${feedback}`);
+        currentState = null;
+    }
+
+    function optimizeMemes() {
+        printLine(`Optimization Options:
+    1. Increase Meme Quality (Longer generation time, higher energy output)
+    2. Increase Meme Quantity (Faster generation time, lower energy per meme)
+
+    Type the number of your choice.`);
+        currentState = 'optimize';
+    }
+
+    function handleOptimization(choice) {
+        if (choice === '1') {
+            printLine(`You chose to increase Meme Quality. Meme Energy per meme increases.`);
+        } else if (choice === '2') {
+            printLine(`You chose to increase Meme Quantity. Meme generation time decreases.`);
+        } else {
+            printLine(`Invalid choice. Type 'optimize memes' to try again.`);
+        }
+        currentState = null;
     }
 </script>
 
