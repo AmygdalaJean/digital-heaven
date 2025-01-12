@@ -21,7 +21,6 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Start lines at the top */
             overflow-y: auto;
         }
 
@@ -38,12 +37,13 @@
         .input-line {
             display: flex;
             align-items: center;
+            margin-top: 10px;
         }
 
         .input {
             color: #00FF00;
             display: inline-block;
-            width: auto;
+            min-width: 10px;
         }
 
         .cursor {
@@ -64,6 +64,7 @@
 <body>
 
 <div id="terminal">
+    <!-- Input line where the user types -->
     <div class="input-line">
         <span class="prompt">>_</span>
         <span class="input" id="input"></span>
@@ -74,8 +75,10 @@
 <script>
     const terminalElement = document.getElementById('terminal');
     const inputElement = document.getElementById('input');
+    const inputLine = document.querySelector('.input-line');
     let currentInput = ''; // Track the current user input
 
+    // Available commands and responses
     const commands = {
         'help': `Available commands:
     login           - Start your session.
@@ -88,40 +91,41 @@
         'exit': 'Session terminated. Thank you for visiting Digital Heaven.',
     };
 
+    // Function to print a new line above the input line
     function printLine(text) {
-        // Create a new line element
         const line = document.createElement('div');
         line.classList.add('line');
         line.innerHTML = `<span class="prompt">>_</span> <span>${text}</span>`;
 
-        // Insert the new line above the input line
-        const inputLine = document.querySelector('.input-line');
+        // Insert the new line before the input line
         terminalElement.insertBefore(line, inputLine);
 
-        // Scroll to the bottom of the terminal
+        // Scroll to ensure the input line is visible
         terminalElement.scrollTop = terminalElement.scrollHeight;
     }
 
+    // Handle user input
     function handleCommand(command) {
         const response = commands[command] || `Unknown command: ${command}`;
-        printLine(response); // Add the response
+        printLine(response); // Print the response
     }
 
+    // Event listener for keyboard input
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             handleCommand(currentInput.trim());
-            currentInput = '';
-            inputElement.innerText = '';
+            currentInput = ''; // Clear the current input
+            inputElement.innerText = ''; // Clear the displayed input
         } else if (e.key === 'Backspace') {
-            currentInput = currentInput.slice(0, -1);
+            currentInput = currentInput.slice(0, -1); // Remove the last character
             inputElement.innerText = currentInput;
         } else if (e.key.length === 1) {
-            currentInput += e.key;
+            currentInput += e.key; // Add the typed character
             inputElement.innerText = currentInput;
         }
     });
 
-    // Initialize the terminal
+    // Initialize the terminal with welcome messages
     printLine('Welcome to Digital Heaven Terminal.');
     printLine('Type `help` to get started.');
 </script>
