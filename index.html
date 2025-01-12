@@ -20,7 +20,7 @@
             height: 100vh;
             padding: 20px;
             display: flex;
-            flex-direction: column-reverse; /* Reverse the order of child elements */
+            flex-direction: column;
             overflow-y: auto;
         }
 
@@ -34,10 +34,16 @@
             margin-right: 5px;
         }
 
+        .input-line {
+            display: flex;
+            align-items: center;
+            margin-top: auto; /* Ensures the input stays at the bottom */
+        }
+
         .input {
             color: #00FF00;
             display: inline-block;
-            width: 100%;
+            width: auto;
         }
 
         .cursor {
@@ -58,7 +64,8 @@
 <body>
 
 <div id="terminal">
-    <div class="line">
+    <!-- Input line stays at the bottom -->
+    <div class="input-line">
         <span class="prompt">>_</span>
         <span class="input" id="input"></span>
         <div class="cursor"></div>
@@ -66,10 +73,9 @@
 </div>
 
 <script>
-    let inputElement = document.getElementById('input');
-    let terminalElement = document.getElementById('terminal');
-    let currentInput = '';
-    let currentState = null; // Tracks the state of the terminal (e.g., awaiting caption)
+    const terminalElement = document.getElementById('terminal');
+    const inputElement = document.getElementById('input');
+    let currentInput = ''; // Track the current user input
 
     const commands = {
         'help': `Available commands:
@@ -78,98 +84,40 @@
     optimize memes  - Optimize the Meme Machine (quality or quantity).
     exit            - Terminate your session.`,
         'login': 'Welcome, new soul. Your session has begun. Type `help` for assistance.',
-        'start meme machine': startMemeMachine,
-        'optimize memes': optimizeMemes,
+        'start meme machine': 'The Meme Machine is spinning...',
+        'optimize memes': 'Optimization options coming soon...',
         'exit': 'Session terminated. Thank you for visiting Digital Heaven.',
     };
 
-    const slotResults = ['🍕', '😱', '🐶', '😂', '🌮', '🤔', '💥', '🔥'];
-    let memeImage = null; // Tracks the currently generated meme image
+    function printLine(text) {
+        const line = document.createElement('div');
+        line.classList.add('line');
+        line.innerHTML = `<span class="prompt">>_</span> <span>${text}</span>`;
+        terminalElement.insertBefore(line, terminalElement.firstChild); // Add new line at the top
+    }
 
-    window.addEventListener('keydown', function(e) {
+    function handleCommand(command) {
+        const response = commands[command] || `Unknown command: ${command}`;
+        printLine(response); // Add the response above
+    }
+
+    window.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             handleCommand(currentInput.trim());
             currentInput = '';
+            inputElement.innerText = '';
         } else if (e.key === 'Backspace') {
             currentInput = currentInput.slice(0, -1);
+            inputElement.innerText = currentInput;
         } else if (e.key.length === 1) {
             currentInput += e.key;
+            inputElement.innerText = currentInput;
         }
-        inputElement.innerText = currentInput;
     });
 
-    function handleCommand(command) {
-        if (currentState === 'caption') {
-            handleCaption(command);
-            return;
-        }
-
-        const response = commands[command];
-        if (response) {
-            if (typeof response === 'function') {
-                response();
-            } else {
-                printLine(response);
-            }
-        } else {
-            printLine(`Unknown command: ${command}`);
-        }
-    }
-
-    function printLine(text) {
-        const newLine = document.createElement('div');
-        newLine.classList.add('line');
-        newLine.innerHTML = `<span class='prompt'>>_</span> <span>${text}</span>`;
-        terminalElement.prepend(newLine); // Prepend the line to display it at the top
-    }
-
-    function startMemeMachine() {
-        memeImage = generateMemeImage();
-        printLine(`The Meme Machine is spinning...`);
-        setTimeout(() => {
-            printLine(`🎰 You’ve pulled: ${memeImage}`);
-            printLine(`Type your caption for this meme:`);
-            currentState = 'caption';
-        }, 3000);
-    }
-
-    function generateMemeImage() {
-        const result1 = slotResults[Math.floor(Math.random() * slotResults.length)];
-        const result2 = slotResults[Math.floor(Math.random() * slotResults.length)];
-        const result3 = slotResults[Math.floor(Math.random() * slotResults.length)];
-        return `${result1} ${result2} ${result3}`;
-    }
-
-    function handleCaption(caption) {
-        printLine(`Caption submitted: "${caption}"`);
-        const memeEnergy = Math.floor(Math.random() * 50) + 1; // Random energy generation
-        const feedback = memeEnergy > 25
-            ? "Excellent meme. Släv Corp is pleased."
-            : "Mediocre meme. Släv Corp expects better.";
-        printLine(`Meme Energy Generated: ${memeEnergy} kW`);
-        printLine(`Släv Corp Feedback: ${feedback}`);
-        currentState = null;
-    }
-
-    function optimizeMemes() {
-        printLine(`Optimization Options:
-    1. Increase Meme Quality (Longer generation time, higher energy output)
-    2. Increase Meme Quantity (Faster generation time, lower energy per meme)
-
-    Type the number of your choice.`);
-        currentState = 'optimize';
-    }
-
-    function handleOptimization(choice) {
-        if (choice === '1') {
-            printLine(`You chose to increase Meme Quality. Meme Energy per meme increases.`);
-        } else if (choice === '2') {
-            printLine(`You chose to increase Meme Quantity. Meme generation time decreases.`);
-        } else {
-            printLine(`Invalid choice. Type 'optimize memes' to try again.`);
-        }
-        currentState = null;
-    }
+    // Initialize the terminal
+    printLine('Welcome to Digital Heaven Terminal.');
+    printLine('Type `help` to get started.');
 </script>
 
 </body>
