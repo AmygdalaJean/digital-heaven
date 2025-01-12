@@ -21,6 +21,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
+            justify-content: flex-start; /* Start lines at the top */
             overflow-y: auto;
         }
 
@@ -37,7 +38,6 @@
         .input-line {
             display: flex;
             align-items: center;
-            margin-top: auto; /* Ensures the input stays at the bottom */
         }
 
         .input {
@@ -64,7 +64,6 @@
 <body>
 
 <div id="terminal">
-    <!-- Input line stays at the bottom -->
     <div class="input-line">
         <span class="prompt">>_</span>
         <span class="input" id="input"></span>
@@ -90,15 +89,22 @@
     };
 
     function printLine(text) {
+        // Create a new line element
         const line = document.createElement('div');
         line.classList.add('line');
         line.innerHTML = `<span class="prompt">>_</span> <span>${text}</span>`;
-        terminalElement.insertBefore(line, terminalElement.firstChild); // Add new line at the top
+
+        // Insert the new line above the input line
+        const inputLine = document.querySelector('.input-line');
+        terminalElement.insertBefore(line, inputLine);
+
+        // Scroll to the bottom of the terminal
+        terminalElement.scrollTop = terminalElement.scrollHeight;
     }
 
     function handleCommand(command) {
         const response = commands[command] || `Unknown command: ${command}`;
-        printLine(response); // Add the response above
+        printLine(response); // Add the response
     }
 
     window.addEventListener('keydown', (e) => {
