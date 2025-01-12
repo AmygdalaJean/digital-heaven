@@ -20,7 +20,7 @@
             height: 100vh;
             padding: 20px;
             display: flex;
-            flex-direction: column;
+            flex-direction: column-reverse;
             overflow-y: auto;
         }
 
@@ -83,7 +83,7 @@
         'exit': 'Session terminated. Thank you for visiting Digital Heaven.',
     };
 
-    const slotResults = ['🍕', '😱', '🐶', '😂', '🌮', '🤔', '💥', '🔥'];
+    const slotResults = ['🍕', '😱', '🐶', '😂', '🌮', '🤔', '💥', '🔥','🧔','😀','🤖','👾','🎃','😺','🫶','🫰','🫀','🫁','🧠','🗣️','👤','👀','👁️','👣','🌟','🔥','💦','🌎','🪺','🎯','🎸','🎤','🎲','♟️','💡','🔌','🔋','📡','💰','🧪','🦠','🌡️'];
     let memeImage = null; // Tracks the currently generated meme image
 
     window.addEventListener('keydown', function(e) {
@@ -120,7 +120,7 @@
         const newLine = document.createElement('div');
         newLine.classList.add('line');
         newLine.innerHTML = `<span class='prompt'>>_</span> <span>${text}</span>`;
-        terminalElement.appendChild(newLine);
+        terminalElement.prepend(newLine);
         terminalElement.scrollTop = terminalElement.scrollHeight;
     }
 
